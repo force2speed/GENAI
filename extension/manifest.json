@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Misinformation Analyzer",
+  "version": "1.0.0",
+  "description": "Submit content for misinformation analysis.",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "vite.svg"
+  },
+  "host_permissions": [
+    "https://misinfo-backend-622658282319.asia-south1.run.app/"
+  ]
+}
