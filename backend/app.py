@@ -214,5 +214,7 @@ def history():
 
 if __name__ == "__main__":
     import os
-    port = int(os.environ.get("PORT", 5000))  # Use 5000 or another free port
-    app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))
+    # Disable debug mode for production
+    debug_mode = os.environ.get("FLASK_ENV") != "production"
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
