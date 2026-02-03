@@ -215,6 +215,13 @@ class GeminiClaimExtractor:
     def extract_claims(self, text: str, scraped_content: List[Dict] = None) -> List[str]:
         """Extract factual claims from text using Gemini AI."""
         
+        # ENHANCED: Handle very short texts as direct claims
+        text_stripped = text.strip()
+        if len(text_stripped) < 100 and len(text_stripped) > 5:
+            # For short text, treat the entire text as a potential claim
+            # But still run through Gemini for validation
+            logger.info(f"Short text detected ({len(text_stripped)} chars), treating as direct claim")
+        
         # Prepare context from scraped content
         context_text = ""
         if scraped_content:
@@ -245,6 +252,8 @@ class GeminiClaimExtractor:
         • Financial figures and economic data
         • Geographical or demographic information
         • Claims about specific people, organizations, or institutions
+        • Statements about existence or non-existence of things
+        • Categorical assertions ("X is Y", "X doesn't exist", etc.)
 
         *EXCLUDE these types of statements:*
         • Personal opinions ("I think...", "In my view...")
@@ -253,6 +262,11 @@ class GeminiClaimExtractor:
         • Questions or rhetorical statements
         • General advice or recommendations
         • Emotional expressions
+
+        *SPECIAL HANDLING:*
+        • For very short texts (under 100 characters), if the entire text is a factual claim, extract it as-is
+        • Don't ignore claims just because they're short or simple
+        • Absolute statements ("X doesn't exist", "Y is fake") should be extracted
 
         ## OUTPUT FORMAT:
         Return exactly {self.config.max_claims_per_text} or fewer of the most significant, fact-checkable claims as a JSON array:
@@ -265,6 +279,7 @@ class GeminiClaimExtractor:
         - Prioritize claims with numbers, statistics, or specific details
         - Remove redundant or overlapping claims
         - Focus on the most consequential assertions
+        - If the text is a single claim, return it in the array
 
         Respond with ONLY the JSON array, no additional text.
         """
@@ -311,6 +326,11 @@ class GeminiClaimExtractor:
                     clean_line = re.sub(r'^["\d\.\-\s]*', '', line).strip(' "')
                     if clean_line and len(clean_line) > 10:
                         claims.append(clean_line)
+            
+            # ENHANCED: If no claims found and text is short, use the original text as claim
+            if not claims and len(text.strip()) < 200 and len(text.strip()) > 5:
+                logger.info("No claims extracted, using original short text as claim")
+                claims = [text.strip()]
             
             return claims[:self.config.max_claims_per_text]
             
