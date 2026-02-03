@@ -286,6 +286,8 @@ class GeminiClaimExtractor:
         
         try:
             logger.info("Calling Gemini API to extract claims...")
+            logger.info(f"Input text: {text[:100]}...")
+            
             response = self.model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
@@ -299,6 +301,14 @@ class GeminiClaimExtractor:
             # Extract JSON from response
             response_text = response.text.strip()
             logger.info(f"Gemini response: {response_text[:200]}...")
+            
+            # CRITICAL FIX: Check if response is empty or blocked
+            if not response_text or len(response_text) < 5:
+                logger.warning("Gemini returned empty or very short response, using fallback")
+                if len(text.strip()) < 200 and len(text.strip()) > 5:
+                    logger.info("Using original text as claim (empty Gemini response)")
+                    return [text.strip()]
+                return []
             
             # Try to find JSON array in the response
             json_match = re.search(r'\[.*?\]', response_text, re.DOTALL)
@@ -336,6 +346,10 @@ class GeminiClaimExtractor:
             
         except Exception as e:
             logger.error(f"Error extracting claims: {str(e)}", exc_info=True)
+            # CRITICAL FIX: Use fallback even on exception for short texts
+            if len(text.strip()) < 200 and len(text.strip()) > 5:
+                logger.warning(f"Using original text as claim due to exception: {text.strip()}")
+                return [text.strip()]
             return []
 
 # =============================================================================
