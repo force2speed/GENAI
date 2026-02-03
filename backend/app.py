@@ -132,24 +132,34 @@ def analyze_document():
 
 @app.route('/analyze-misinformation/detailed', methods=['POST'])
 def analyze_misinformation_detailed():
+    detector = get_detector()
     if detector is None:
-        return jsonify({'error': 'Detector not initialized'}), 400
+        return jsonify({'error': 'Detector not initialized. Please check GEMINI_API_KEY configuration.'}), 500
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No JSON data provided'}), 400
     text = data.get('text')
     scrape_urls = data.get('scrape_urls', True)
     if not text or not text.strip():
         return jsonify({'error': 'Text cannot be empty'}), 400
-    results = detector.analyze_text(text, scrape_urls)
-    return jsonify({
-        'status': 'success',
-        'results': results,
-        'analysis_type': 'comprehensive'
-    })
+    try:
+        results = detector.analyze_text(text, scrape_urls)
+        return jsonify({
+            'status': 'success',
+            'results': results,
+            'analysis_type': 'comprehensive'
+        })
+    except Exception as e:
+        logger.error(f"Error in analyze_misinformation_detailed: {e}")
+        return jsonify({'error': f'Analysis failed: {str(e)}'}), 500
 
 @app.route("/analyze-image", methods=["POST"])
-
 def analyze_image():
-    print(request.files)
+    detector = get_detector()
+    if not main:
+        return jsonify({"error": "Text extractor not available"}), 500
+    
+    logger.info(f"Request files: {request.files}")
 
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -176,6 +186,10 @@ def analyze_image():
 
 @app.route("/analyze-audio", methods=["POST"])
 def analyze_audio():
+    detector = get_detector()
+    if not main:
+        return jsonify({"error": "Text extractor not available"}), 500
+    
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
     file = request.files["file"]
@@ -206,6 +220,10 @@ def analyze_audio():
 
 @app.route("/analyze-video", methods=["POST"])
 def analyze_video():
+    detector = get_detector()
+    if not main:
+        return jsonify({"error": "Text extractor not available"}), 500
+    
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
