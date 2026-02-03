@@ -91,9 +91,10 @@ def get_detector():
 @app.route("/", methods=["GET"])
 def health_check():
     """Health check endpoint for Cloud Run"""
+    logger.info("Health check endpoint called")
     return jsonify({
         "status": "healthy",
-        "service": "Misinformation Detection API",
+        "service": "Misinformation Detection API v2",
         "gemini_api_configured": bool(GEMINI_API_KEY),
         "detector_available": get_detector() is not None
     }), 200
