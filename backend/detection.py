@@ -44,8 +44,8 @@ warnings.filterwarnings('ignore')
 class Config:
     """Pipeline configuration with robust defaults."""
     
-    # Model settings
-    gemini_model: str = "gemini-2.0-flash-exp"
+    # Model settings - Updated to use available model
+    gemini_model: str = "gemini-2.5-flash"  # Latest stable model
     
     # Scoring thresholds
     fake_score_threshold: float = 0.6

@@ -5,8 +5,8 @@
 Successfully migrated backend from old GCP account to new account:
 - **Old Project**: solid-future-471019-j5 (622658282319)
 - **New Project**: genai-486310
-- **Old Backend URL**: https://misinfo-backend-622658282319.asia-south1.run.app
-- **New Backend URL**: https://misinfo-backend-557717692973.asia-south1.run.app
+- **Old Backend URL**: https://misinfo-backend-622658282319.asia-south1.run.app (DEPRECATED)
+- **Current Backend URL**: https://misinfo-backend-557717692973.asia-south1.run.app
 
 ## What Was Done
 
@@ -71,10 +71,10 @@ You need to update the backend API URL in your frontend code:
 
 2. **Replace the old URL:**
    ```javascript
-   // OLD (don't use this anymore)
+   // OLD (DEPRECATED - don't use this anymore)
    const API_URL = "https://misinfo-backend-622658282319.asia-south1.run.app";
    
-   // NEW (use this)
+   // CURRENT (use this)
    const API_URL = "https://misinfo-backend-557717692973.asia-south1.run.app";
    ```
 
