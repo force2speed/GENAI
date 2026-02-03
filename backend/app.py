@@ -2,20 +2,55 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import time
+import sys
+import logging
 from dotenv import load_dotenv
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 load_dotenv()
 
 import uuid
-from text_extractor import main  # Your analysis function
-from detection import EnhancedFakeInfoDetector  # Import your detector class
+
+# Set Google Cloud credentials from environment
+if os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
+    logger.info(f"Using credentials from: {os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')}")
+else:
+    logger.warning("GOOGLE_APPLICATION_CREDENTIALS not set")
+
+try:
+    from text_extractor import main  # Your analysis function
+    logger.info("Text extractor loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load text_extractor: {e}")
+    main = None
+
+try:
+    from detection import EnhancedFakeInfoDetector  # Import your detector class
+    logger.info("Detection module loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load detection module: {e}")
+    EnhancedFakeInfoDetector = None
+
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+if GEMINI_API_KEY:
+    logger.info("GEMINI_API_KEY is set")
+else:
+    logger.warning("GEMINI_API_KEY is not set")
 
 # from firestore import log_to_firestore, get_history  # You need to implement these
 # from bigquery import log_to_bigquery  # You need to implement this
 
 app = Flask(__name__)
+
+logger.info("Flask app created")
 
 # Configure CORS to allow requests from your frontend
 CORS(app, resources={
@@ -33,11 +68,41 @@ CORS(app, resources={
     }
 })
 
+logger.info("CORS configured")
+
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-detector = EnhancedFakeInfoDetector(GEMINI_API_KEY) if GEMINI_API_KEY else None
+logger.info(f"Upload folder created: {UPLOAD_FOLDER}")
+
+# Initialize detector lazily
+detector = None
+
+def get_detector():
+    global detector
+    if detector is None and GEMINI_API_KEY and EnhancedFakeInfoDetector:
+        try:
+            logger.info("Initializing detector...")
+            detector = EnhancedFakeInfoDetector(GEMINI_API_KEY)
+            logger.info("Detector initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize detector: {e}")
+    return detector
+
+@app.route("/", methods=["GET"])
+def health_check():
+    """Health check endpoint for Cloud Run"""
+    return jsonify({
+        "status": "healthy",
+        "service": "Misinformation Detection API",
+        "gemini_api_configured": bool(GEMINI_API_KEY),
+        "detector_available": get_detector() is not None
+    }), 200
+
 @app.route("/analyze-document", methods=["POST"])
 def analyze_document():
+    detector = get_detector()
+    if not main:
+        return jsonify({"error": "Text extractor not available"}), 500
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
     file = request.files["file"]
@@ -217,4 +282,5 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     # Disable debug mode for production
     debug_mode = os.environ.get("FLASK_ENV") != "production"
+    logger.info(f"Starting Flask app on port {port}, debug={debug_mode}")
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
