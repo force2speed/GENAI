@@ -739,6 +739,13 @@ class EnhancedFakeInfoDetector:
         
         credibility_factor = 1 - avg_credibility
         
+        # ENHANCED: Boost fake score for unreliable sources
+        unreliable_sources = sum(1 for v in validations if v.get('source_assessment') in ['unreliable', 'questionable'])
+        if unreliable_sources > 0:
+            # Add 0.2 to credibility_factor for each unreliable source (capped at +0.4)
+            credibility_factor = min(1.0, credibility_factor + (unreliable_sources * 0.2))
+            risk_factors.append(f'unreliable_sources_{unreliable_sources}')
+        
         # Check for extremely low credibility claims
         very_low_credibility = sum(1 for score in credibility_scores if score < 0.3)
         if very_low_credibility > 0:
@@ -750,7 +757,8 @@ class EnhancedFakeInfoDetector:
             credibility_indicators.append(f'high_credibility_claims_{high_credibility}')
         
         # 2. Stance Analysis (25% weight)
-        stance_weights = {'support': 0.0, 'neutral': 0.3, 'unrelated': 0.2, 'refute': 1.0}
+        # FIXED: Inverted logic - if text supports a false claim, it should increase fake score
+        stance_weights = {'support': 1.0, 'neutral': 0.5, 'unrelated': 0.3, 'refute': 0.0}
         stance_scores = []
         
         support_count = refute_count = neutral_count = 0
@@ -827,11 +835,11 @@ class EnhancedFakeInfoDetector:
         # Determine assessment with enhanced categories
         if fake_score >= 0.8:
             assessment = 'highly_likely_fake'
-        elif fake_score >= self.config.fake_score_threshold:
+        elif fake_score >= self.config.fake_score_threshold:  # 0.65
             assessment = 'likely_fake'
-        elif fake_score >= 0.45:
+        elif fake_score >= 0.40:  # Lowered from 0.45 for better accuracy
             assessment = 'mixed_credibility'
-        elif fake_score >= self.config.reliable_threshold:
+        elif fake_score >= self.config.reliable_threshold:  # 0.30
             assessment = 'likely_reliable'
         else:
             assessment = 'highly_reliable'

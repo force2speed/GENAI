@@ -322,7 +322,7 @@ const InputForm = () => {
             body: JSON.stringify({
               text: hasShortPrompt ? shortPrompt : prompt,
             }),
-          }
+          },
         );
         data = await response.json();
         data = { type: "text", results: data };
@@ -352,7 +352,7 @@ const InputForm = () => {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ text: textContent }),
-            }
+            },
           );
           data = await response.json();
           data = { type: "text", results: data };
@@ -488,10 +488,10 @@ const InputForm = () => {
                   selectedFileType === "Image"
                     ? "image/*"
                     : selectedFileType === "Audio"
-                    ? "audio/*"
-                    : selectedFileType === "PDF"
-                    ? "application/pdf"
-                    : ".txt"
+                      ? "audio/*"
+                      : selectedFileType === "PDF"
+                        ? "application/pdf"
+                        : ".txt"
                 }
                 onChange={(e) =>
                   handleFileChange(selectedFileType, e.target.files[0])
