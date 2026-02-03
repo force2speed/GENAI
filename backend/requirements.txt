@@ -1,8 +1,12 @@
 flask
-psutil
 flask_cors
+gunicorn
+python-dotenv
+psutil
 google-cloud-vision
 google-cloud-speech
+google-cloud-firestore
+google-cloud-bigquery
 opencv-python-headless
 moviepy==1.0.3
 pydub
@@ -11,8 +15,6 @@ librosa
 soundfile
 pymupdf
 python-docx
-transformers 
-torch
 google-generativeai
 requests 
 beautifulsoup4
