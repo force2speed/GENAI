@@ -207,8 +207,10 @@ class GeminiClaimExtractor:
         if not api_key:
             raise ValueError("Gemini API key is required")
         
+        logger.info(f"Initializing GeminiClaimExtractor with API key: {api_key[:10]}...")
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(config.gemini_model)
+        logger.info(f"Gemini model {config.gemini_model} initialized successfully")
     
     def extract_claims(self, text: str, scraped_content: List[Dict] = None) -> List[str]:
         """Extract factual claims from text using Gemini AI."""
@@ -268,6 +270,7 @@ class GeminiClaimExtractor:
         """
         
         try:
+            logger.info("Calling Gemini API to extract claims...")
             response = self.model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
@@ -280,6 +283,7 @@ class GeminiClaimExtractor:
             
             # Extract JSON from response
             response_text = response.text.strip()
+            logger.info(f"Gemini response: {response_text[:200]}...")
             
             # Try to find JSON array in the response
             json_match = re.search(r'\[.*?\]', response_text, re.DOTALL)
@@ -311,7 +315,7 @@ class GeminiClaimExtractor:
             return claims[:self.config.max_claims_per_text]
             
         except Exception as e:
-            logger.error(f"Error extracting claims: {str(e)}")
+            logger.error(f"Error extracting claims: {str(e)}", exc_info=True)
             return []
 
 # =============================================================================
