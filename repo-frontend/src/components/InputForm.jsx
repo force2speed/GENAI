@@ -315,7 +315,7 @@ const InputForm = () => {
 
       if ((hasPrompt || hasShortPrompt) && !hasFile) {
         response = await fetch(
-          "https://misinfo-backend-622658282319.asia-south1.run.app/analyze-misinformation/detailed",
+          "https://misinfo-backend-557717692973.asia-south1.run.app/analyze-misinformation/detailed",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -335,19 +335,19 @@ const InputForm = () => {
         if (files.Image) {
           formData.append("file", files.Image);
           endpoint =
-            "https://misinfo-backend-622658282319.asia-south1.run.app/analyze-image";
+            "https://misinfo-backend-557717692973.asia-south1.run.app/analyze-image";
         } else if (files.Audio) {
           formData.append("file", files.Audio);
           endpoint =
-            "https://misinfo-backend-622658282319.asia-south1.run.app/analyze-audio";
+            "https://misinfo-backend-557717692973.asia-south1.run.app/analyze-audio";
         } else if (files.PDF) {
           formData.append("file", files.PDF);
           endpoint =
-            "https://misinfo-backend-622658282319.asia-south1.run.app/analyze-document";
+            "https://misinfo-backend-557717692973.asia-south1.run.app/analyze-document";
         } else if (files.Text) {
           const textContent = await files.Text.text();
           response = await fetch(
-            "https://misinfo-backend-622658282319.asia-south1.run.app/analyze-misinformation/detailed",
+            "https://misinfo-backend-557717692973.asia-south1.run.app/analyze-misinformation/detailed",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
