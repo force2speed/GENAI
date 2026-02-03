@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Sensitive files - DO NOT UPLOAD
+key.json
+*.json
+!package.json
+!output.json
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads
+uploads/*
+
+# Node
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Documentation (optional - comment out if you want these deployed)
+*.md
+!README.md
+
+# Setup scripts
+setup.sh
+setup_check.bat
+verify_setup.py

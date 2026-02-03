@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Google Cloud credentials
+key.json
+*.json
+!package.json
+!output.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Upload folder
+uploads/*
+!uploads/.gitkeep
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+temp_audio*.wav
+*.tmp

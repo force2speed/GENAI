@@ -855,7 +855,22 @@ class EnhancedFakeInfoDetector:
 # =============================================================================
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS to allow requests from your frontend
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://frontend-truthscope123.web.app",
+            "https://frontend-truthscope123.firebaseapp.com",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:5000"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 
 # Global detector instance, initialized from environment variable

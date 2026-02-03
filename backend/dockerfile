@@ -4,11 +4,16 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies for opencv and other packages
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY key.json /app/key.json
-ENV GOOGLE_APPLICATION_CREDENTIALS="/app/key.json"
 
 # Copy all source code
 COPY . .
@@ -19,5 +24,8 @@ RUN mkdir -p uploads
 # Expose the port Cloud Run expects
 EXPOSE 8080
 
-# Start the app
-CMD ["python", "app.py"]
+# Set environment variable for Flask to run on port 8080
+ENV PORT=8080
+
+# Start the app on port 8080
+CMD python -m flask --app app run --host=0.0.0.0 --port=${PORT}

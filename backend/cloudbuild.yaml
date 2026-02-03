@@ -1,0 +1,36 @@
+# Cloud Build configuration for Cloud Run deployment
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/misinfo-backend', '-f', 'dockerfile', '.']
+    dir: 'backend'
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/misinfo-backend']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'misinfo-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/misinfo-backend'
+      - '--region'
+      - 'asia-south1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'GCP_PROJECT_ID=$PROJECT_ID'
+      - '--set-secrets'
+      - 'GEMINI_API_KEY=GEMINI_API_KEY:latest,GOOGLE_APPLICATION_CREDENTIALS=SERVICE_ACCOUNT_KEY:latest'
+
+images:
+  - 'gcr.io/$PROJECT_ID/misinfo-backend'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY

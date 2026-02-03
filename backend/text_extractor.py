@@ -2,6 +2,11 @@ import os
 import json
 import mimetypes
 import cv2
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 from google.cloud import vision, speech
 
 from moviepy.editor import VideoFileClip

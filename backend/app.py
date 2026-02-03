@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 import uuid
 from text_extractor import main  # Your analysis function
@@ -12,7 +16,23 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 # from bigquery import log_to_bigquery  # You need to implement this
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS to allow requests from your frontend
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://frontend-truthscope123.web.app",
+            "https://frontend-truthscope123.firebaseapp.com",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:5000"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
+
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 detector = EnhancedFakeInfoDetector(GEMINI_API_KEY) if GEMINI_API_KEY else None
