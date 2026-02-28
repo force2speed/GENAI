@@ -68,6 +68,24 @@ CORS(app, resources={
     }
 })
 
+# Explicit CORS headers on every response (backup for preflight issues)
+@app.after_request
+def add_cors_headers(response):
+    origin = request.headers.get('Origin', '')
+    allowed_origins = [
+        "https://frontend-truthscope123.web.app",
+        "https://frontend-truthscope123.firebaseapp.com",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5000"
+    ]
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
+
 logger.info("CORS configured")
 
 UPLOAD_FOLDER = "uploads"
@@ -271,23 +289,6 @@ def metrics():
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         },
         "microservice_metrics": {}  # Fill if you have other microservices
-    })
-
-@app.route("/", methods=["GET"])
-def root():
-    return jsonify({
-        "service": "Misinformation Detection API",
-        "version": "1.0.0",
-        "status": "running",
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "endpoints": {
-            "analyze_text": "/analyze-text",
-            "analyze_image": "/analyze-image",
-            "analyze_audio": "/analyze-audio",
-            "analyze_video": "/analyze-video",
-            "health": "/health",
-            "metrics": "/metrics"
-        }
     })
 
 @app.route("/history", methods=["GET"])

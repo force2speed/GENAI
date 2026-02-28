@@ -1,2 +1,0 @@
-curl -X POST http://localhost:5000/analyze-image \
-  -F "file=@C:/Users/dhruv/Desktop/PROJECTS/GENAI/backend/cat.jpg"
